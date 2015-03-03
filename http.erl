@@ -47,5 +47,8 @@ message_body(R) ->
 ok(Body) ->
 "HTTP/1.1 200 OK\r\n" ++ "\r\n" ++ Body.
 
+error(Body)->
+"HTTP/1.1 200 OK \r\n" ++ "\r\n" ++ Body.
+
 get(URI) ->
 "GET " ++ URI ++ " HTTP/1.1\r\n" ++ "\r\n".
