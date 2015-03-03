@@ -2,11 +2,7 @@
 -compile(export_all).
 
 start(Port) ->
-    register(rudy1, spawn(fun() -> init(Port) end)),
-    register(rudy2, spawn(fun() -> init(Port) end)),
-    register(rudy3, spawn(fun() -> init(Port) end)),
-    register(rudy4, spawn(fun() -> init(Port) end)),
-    register(rudy5, spawn(fun() -> init(Port) end)).
+   register(rudy1, spawn(fun() -> init(Port) end)).
 
 stop() ->
     exit(whereis(rudy1), "time to die"),
@@ -20,6 +16,10 @@ init(Port) ->
 Opt = [list, {active, false}, {reuseaddr, true}],
 case gen_tcp:listen(Port, Opt) of
 {ok, Listen} ->
+	register(rudy2, spawn_link(fun() -> handler(Listen) end)),
+	register(rudy3, spawn_link(fun() -> handler(Listen) end)),
+	register(rudy4, spawn_link(fun() -> handler(Listen) end)),
+	register(rudy5, spawn_link(fun() -> handler(Listen) end)),
 	handler(Listen),
 	gen_tcp:close(Listen),
 	ok;
