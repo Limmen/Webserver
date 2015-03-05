@@ -1,0 +1,7 @@
+-module(asyncron).
+-compile(export_all).
+
+start(Host,Port,N)->
+    spawn(fun()-> test:bench(Host,Port,100) end)
+    start(Host,Port,N-100).
+		  
