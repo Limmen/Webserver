@@ -27,48 +27,35 @@ end.
 handler(Listen) ->
 case gen_tcp:accept(Listen) of
 {ok, Client} ->
-        io:format("Process handling this request is:  ~w ~n ",[self()]),
+        %io:format("Process handling this request is:  ~w ~n ",[self()]),
 	request(Client,[]),
 	handler(Listen);
 	{error, Error} ->
 		     error
 	     end.
-%% %Receive a packet from socket and send response
-%% request(Client,Sofar) ->
-%%     Recv = gen_tcp:recv(Client, 0),
-%%     case Recv of
-%% 	{ok, Str} ->
-%% 	    Req = Str++Sofar,
-%% 	    erlang:display("what??"),
-%% 	    case http:pre_process(Req) of
-%% 		{Body,Length} ->   io:format("Length: ~w Bodylen: ~w ~n ",[Length,len(Body)]),
-%% 		    case len(Body) == Length of
-%% 				      true ->
-%% 					  Request = http:parse_request(Req),
-%% 					  Response = reply(Request),
-%% 					  gen_tcp:send(Client,Response);
-%% 				      false -> 
-%% 					     request(Client,Body)
-%% 						  end;
-%% 		error->erlang:display("error"), error 
-%% 			   %request(Client,Req)
-%% 			   end;
-%% 	{error, Error} ->
-%% 	    io:format("rudy: error: ~w~n", [Error])
-%%     end,
-%%     gen_tcp:close(Client).
-
 %Receive a packet from socket and send response
 request(Client,Sofar) ->
     Recv = gen_tcp:recv(Client, 0),
     case Recv of
 	{ok, Str} ->
 	    Req = Str++Sofar,
+	    %io:format("The string getting parsed so far: ~s ~n",[Req]),
 	    case http:pre_process(Req) of
 		ok ->
 		    Request = http:parse_request(Req),
 		    Response = reply(Request),
 		    gen_tcp:send(Client,Response);
+
+		{Body,Length} -> case len(Body) == Length of
+				     true ->
+					 Request = http:parse_request(Req),
+					 Response = reply(Request),
+					 gen_tcp:send(Client,Response);
+				     false -> case len(Body) > Length of
+						  true -> error;
+						  false-> request(Client,Body)
+					      end
+				 end;
 		error-> 
 	               request(Client,Req)
 	    end;
@@ -94,7 +81,10 @@ reply({{get, [47|URI], _}, _, _}) ->
     case file_read:readlines(URI) of
 	{error,Reason} -> http:error("404 error: File not found");
 	File -> File
-		    end.
+		    end;
+reply({{get, URI, _}, _, _}) ->
+    timer:sleep(40),
+    http:ok("Welcome to my simple webserver in Erlang! /Kim Hammar").
 	    
     
 len([]) -> 0;

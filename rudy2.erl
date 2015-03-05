@@ -29,8 +29,7 @@ case gen_tcp:accept(Listen) of
 	     end.
 
 request(Client) ->
-    erlang:display("The process handling this client request is: "),
-    erlang:display(self()),
+    %io:format("Process handling this request is:  ~w ~n ",[self()])
     Recv = gen_tcp:recv(Client, 0),
     case Recv of
 	{ok, Str} ->

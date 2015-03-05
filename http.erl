@@ -1,28 +1,25 @@
 -module(http).
 -compile(export_all).
 
-%% %Pre processor that checks if request is complete.
-%% pre_process([])->
-%%     error;
-%% pre_process([$C,$o,$n,$t,$e,$n,$t,45,$L,$e,$n,$g,$t,$h,58,32,Length|R])->
-%%     erlang:display("Content length found"),
-%%     pre_process(R,Length);
-%% pre_process([H|T])->
-%% pre_process(T).
-%% %Double CRLF means end of header section
-%% pre_process([13,10,13,10|Body],Length)->
-%%     erlang:display("Double CRLF is here lel"),
-%%     {Body,Length};
-%% pre_process([],Length)->
-%%     error;
-%% pre_process([H|T],Length)->
-%% pre_process(T).
+%Double CRLF means end of header section
+pre_process([13,10,13,10|Body],Length)->
+    erlang:display("Double CRLF is here lel"),
+    {Body,Length};
+pre_process([],Length)->
+    error;
+pre_process([H|T],Length)->
+pre_process(T).
 
 %Pre processor that checks if request is complete.
 pre_process([])->
     error;
+%If body exists
+pre_process([$C,$o,$n,$t,$e,$n,$t,45,$L,$e,$n,$g,$t,$h,58,32,Length|R])->
+    erlang:display("Content length found"),
+    pre_process(R,Length);
+%Double CRLF means end of header section
 pre_process([13,10,13,10|Body])->
-    erlang:display("Double CRLF is here lel"),
+   % erlang:display("Double CRLF is here lel"),
 		   ok;
 pre_process([H|T])->
 pre_process(T).

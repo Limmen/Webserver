@@ -1,8 +1,8 @@
 -module(test).
--export([bench/2]).
-bench(Host, Port) ->
+-export([bench/3]).
+bench(Host, Port,N) ->
     Start = now(),
-    run(100, Host, Port),
+    run(N, Host, Port),
     Finish = now(),
     timer:now_diff(Finish, Start).
 
