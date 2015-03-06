@@ -11,7 +11,6 @@ init(Port) ->
 Opt = [list, {active, false}, {reuseaddr, true}],
 case gen_tcp:listen(Port, Opt) of
 {ok, Listen} ->
-	register(rudy2, spawn(fun() -> handler(Listen) end)),
 	handler(Listen),
 	gen_tcp:close(Listen),
 	ok;
@@ -50,6 +49,10 @@ reply({{get, [47|URI], _}, _, _}) ->
     case file_read:readlines(URI) of
 	{error,Reason} -> http:error("404 error: File not found");
 	File -> http:ok(File)
-    end.
+    end;
+
+reply({{get, URI, _}, _, _}) ->
+    timer:sleep(40),
+    http:ok("Welcome to my simple webserver in Erlang! /Kim Hammar").
 	    
     

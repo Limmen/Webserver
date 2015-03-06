@@ -29,6 +29,7 @@ case gen_tcp:accept(Listen) of
 {ok, Client} ->
         %io:format("Process handling this request is:  ~w ~n ",[self()]),
 	request(Client,[]),
+	%% request(Client),
 	handler(Listen);
 	{error, Error} ->
 		     error
@@ -39,14 +40,14 @@ request(Client,Sofar) ->
     case Recv of
 	{ok, Str} ->
 	    Req = Str++Sofar,
-	    %io:format("The string getting parsed so far: ~s ~n",[Req]),
 	    case http:pre_process(Req) of
-		ok ->
-		    Request = http:parse_request(Req),
+		{ok,Body} ->
+		    Request = http:parse_request(Req++Body),
 		    Response = reply(Request),
 		    gen_tcp:send(Client,Response);
 
-		{Body,Length} -> case len(Body) == Length of
+		{Body,Length} ->
+		   case len(Body) == Length of
 				     true ->
 					 Request = http:parse_request(Req),
 					 Response = reply(Request),
@@ -64,6 +65,18 @@ request(Client,Sofar) ->
     end,
     gen_tcp:close(Client).
 
+%% request(Client) ->
+%%     Recv = gen_tcp:recv(Client, 0),
+%%     case Recv of
+%% 	{ok, Str} -> 
+%% 	             Request = http:parse_request(Str),
+%% 		     Response = reply(Request),
+%% 		     gen_tcp:send(Client,Response);
+%% 	{error, Error} ->
+%% 	    io:format("rudy: error: ~w~n", [Error])
+%%     end,
+%%     gen_tcp:close(Client).
+
 %Spawn N processess.
 processPool(0,_)->
     ok;
@@ -76,11 +89,11 @@ reply({{get,[47], _}, _, _}) ->
     timer:sleep(40),
     http:ok("Welcome to my simple webserver in Erlang! /Kim Hammar");
 
-reply({{get, [47|URI], _}, _, _}) ->
+reply({{get, [47|URI], _}, Headers, _}) ->
     timer:sleep(40),
     case file_read:readlines(URI) of
 	{error,Reason} -> http:error("404 error: File not found");
-	File -> File
+	{File,Size} -> http:file(File,Headers,Size)
 		    end;
 reply({{get, URI, _}, _, _}) ->
     timer:sleep(40),

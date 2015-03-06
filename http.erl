@@ -8,7 +8,7 @@ pre_process([13,10,13,10|Body],Length)->
 pre_process([],Length)->
     error;
 pre_process([H|T],Length)->
-pre_process(T).
+pre_process(T,Length).
 
 %Pre processor that checks if request is complete.
 pre_process([])->
@@ -20,7 +20,7 @@ pre_process([$C,$o,$n,$t,$e,$n,$t,45,$L,$e,$n,$g,$t,$h,58,32,Length|R])->
 %Double CRLF means end of header section
 pre_process([13,10,13,10|Body])->
    % erlang:display("Double CRLF is here lel"),
-		   ok;
+		   {ok,Body};
 pre_process([H|T])->
 pre_process(T).
 
@@ -71,12 +71,18 @@ header([C|R0]) ->
 message_body(R) ->
     {R, []}.
 
-%http responses and requests
+%http responses
 ok(Body) ->
 "HTTP/1.1 200 OK\r\n" ++ "\r\n" ++ Body.
 
 error(Body)->
 "HTTP/1.1 404 Not Found\r\n" ++ "\r\n" ++ Body.
 
+file(Body,Headers,Size) ->
+"HTTP/1.1 200 OK\r\n" ++ Headers ++ "Content-Length:" ++ [Size] ++  "\r\n\r\n" ++ Body.
+
+%get request
 get(URI) ->
 "GET " ++ URI ++ " HTTP/1.1\r\n" ++ "\r\n".
+
+
