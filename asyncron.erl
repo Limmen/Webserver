@@ -13,7 +13,7 @@ run(_,_,0)->
 run(Host,Port,N)->
     Pid = self(),
     spawn(fun()-> test:bench(Host,Port,10, Pid) end),
-    run(Host,Port,N-10).
+    run(Host,Port,N-1).
 
 return(0)->
     erlang:display("done! all threads returned"),
@@ -21,7 +21,7 @@ return(0)->
 
 return(N)->
    receive
-	done ->  return(N-10);
+	done ->  return(N-1);
 	error -> erlang:display("error!!"),
 		 error
 		     end.

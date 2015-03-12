@@ -34,7 +34,7 @@ case gen_tcp:accept(Listen) of
 	{error, Error} ->
 		     error
 	     end.
-%Receive a packet from socket and send response
+%Receive a packet from clientsocket and send response
 request(Client,Sofar) ->
     Recv = gen_tcp:recv(Client, 0),
     case Recv of

@@ -8,7 +8,7 @@ readlines(FileName) ->
 	    {error, Reason};
         {ok, Device} -> 
 	    {ok, #file_info{size = Size}} = file:read_file_info(FileName),
-            erlang:display(Size),
+            %erlang:display(Size),
 	   % {get_all_lines(Device, []),Size}
 	    	    {get_all_lines(Device, []),Size}
 			    end.
